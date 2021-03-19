@@ -102,9 +102,69 @@ def main():
         print("Tamanho do payload final: {}".format(pay))
 
         end_of_package = eop()
-        print("\n---------------------------")
-        print("Enviando handshake para o server")
-        print("---------------------------\n")
+        handshaked = False
+
+        while not handshaked:
+            handshake_client = handshake(pacotes)
+            print("Enviando o handshake para iniciar a comunicação...")
+            com1.sendData(handshake_client + end_of_package)
+
+            #Checar o Header do Handshake
+            check_server_up = com1.rx.getNData(tam_head)
+            
+            #Se o getNData retornar 0, significa que não recebemos a confirmação do server
+            while check_server_up == b"\x00":
+                time_Start = time.time()
+                if (time.time() - time_Start) > 5:
+                    retry = input("Servidor inativo. Tentar novamente? [S/N]: ")
+                    if retry == "N" or retry == "n":
+                        print("Encerrando a comunicação")
+                        com1.disable()
+                        exit()
+                    elif retry == "S" or retry == "s":
+                        print("Ok, tentando novamente...")
+                        handshake_client = handshake(pacotes)
+                        com1.sendData(handshake_client + eop)
+                        check_server_up = com1.rx.getNData(tam_head)
+                else:
+                    continue
+            
+            #Checar o Hedar e EOP do handshake
+            check_eop = com1.rx.getNData(tam_eop)
+            if check_for_error(check_eop, check_server_up):
+                print("Erro no handshake entre client e server")
+            else:
+                #Checar se o código recebido pelo tipo de mensagem no header do handshake, é 2
+                if transform_int(check_server_up[0:1]) == 2:
+                    print("\n---------------------------")
+                    print("Server up! Iniciando a transmissão...")
+                    print("---------------------------\n")
+                    handshaked = True
+
+        allpackages_sent = False
+        numero_pacote = 1
+        last_pack = 0
+        payload_index = 0
+        while not allpackages_sent:
+            print("Enviando pacote número {0}".format(numero_pacote))
+
+            if numero_pacote == pacotes:
+                last_pack = 1
+            
+            if last_pack != 1:
+                header = header(3, pacotes, numero_pacote, tam_payload)
+                payload = txClient[payload_index:payload_index + tam_payload]
+                com1.sendData(header + payload + eop)
+
+            else:
+                header = header(3, pacotes, numero_pacote, tam_payload)
+                payload = txClient[payload_index:payload_index + tam_payload]
+                
+
+
+
+            
+        
 
         #Send data to server
         com1.sendData(txClient)
