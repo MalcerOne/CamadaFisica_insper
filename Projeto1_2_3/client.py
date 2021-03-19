@@ -147,7 +147,7 @@ def main():
         payload_index = 0
         while not allpackages_sent:
             print("Enviando pacote número {0}".format(numero_pacote))
-
+            counter = 0
             if numero_pacote == pacotes:
                 last_pack = 1
             
@@ -159,7 +159,16 @@ def main():
             else:
                 header = header(3, pacotes, numero_pacote, tam_payload)
                 payload = txClient[payload_index:payload_index + tam_payload]
+                if counter == 0:
+                    #Avisando que é o ultimo pacote, enviando FF 
+                    com1.sendData(header + payload + b"\xFF" + eop)
+                    counter += 1
+                else:
+                    com1.sendData(header + payload + eop)
+                head_Server = com1.rx.getNData(tam_head)
                 
+
+
 
 
 
