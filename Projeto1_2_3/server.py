@@ -117,7 +117,7 @@ def main():
 
             while receive_all_packages == 0:
                 print("Aguardando o pacote número: {0}...".format(numero_pacote))
-                contador = 0
+                contador = 1
                 header_pacote = com2.rx.getNData(tam_head)
                 
                 tam_pay_final =  transform_int(header_pacote[3:4])

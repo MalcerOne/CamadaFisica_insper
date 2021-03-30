@@ -147,7 +147,7 @@ def main():
 
         #Preparação para o envio dos pacotes, após a confirmação do handshake
         allpackages_sent = False
-        numero_pacote = 0
+        numero_pacote = 1
         last_pack = 0
         payload_index = 0
         head_Server = [0, 0, 0, 0, 0, 0, 0, 0]
