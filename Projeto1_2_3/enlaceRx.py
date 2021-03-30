@@ -67,9 +67,17 @@ class RX(object):
         self.threadResume()
         return(b)
 
+    def getNData_handshake(self, size):
+        tinicial = time.time()
+        while(self.getBufferLen() < size):
+            time.sleep(0.05)
+            if (time.time() - tinicial) > 5:
+                return "Cinco segundos se passaram"
+        return(self.getBuffer(size))
+
     def getNData(self, size):
         while(self.getBufferLen() < size):
-            time.sleep(0.05)                 
+            time.sleep(0.05)
         return(self.getBuffer(size))
 
     def clearBuffer(self):
