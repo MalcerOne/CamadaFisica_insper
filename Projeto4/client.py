@@ -125,10 +125,10 @@ def main():
         print("Tamanho do payload final [bytes]: {}".format(tam_pay_final))
 
         end_of_package = eop()
-        handshaked = False
+        inicia = False
 
-        while not handshaked:
-            handshake_client = handshake(pacotes)
+        while not inicia:
+            handshake_client = handshake(pacotes, id_server, id_client, id_arquivo)
             print("Enviando o handshake para iniciar a comunicação...")
             com1.sendData(handshake_client + end_of_package)
             #Checar o Header do Handshake
@@ -142,7 +142,7 @@ def main():
                     exit()
                 elif retry == "S" or retry == "s":
                     print("Ok, tentando novamente...")
-                    handshake_client = handshake(pacotes)
+                    handshake_client = handshake(pacotes, id_server, id_client, id_arquivo)
                     com1.sendData(handshake_client + end_of_package)
                     check_server_up = com1.rx.getNData_handshake(tam_head)
 
@@ -156,22 +156,86 @@ def main():
                     print("\n---------------------------")
                     print("Server up! Iniciando a transmissão...")
                     print("---------------------------\n")
-                    handshaked = True
+                    inicia = True
 
         #Preparação para o envio dos pacotes, após a confirmação do handshake
         allpackages_sent = False
-        numero_pacote = 1
+        cont = 1
         last_pack = 0
         payload_index = 0
         head_Server = [0, 0, 0, 0, 0, 0, 0, 0]
         sem_erros = 0
         header_ = b''
+        timer12_check = 1
+"""
+        with open("copy.txt", "w") as file:
+            file.write("Your text goes here")"""
 
-        while not allpackages_sent:
-            print("Enviando pacote número {0}".format(numero_pacote))
+        while cont <= pacotes:
             
-            if numero_pacote == pacotes:
-                header_ = header(5, pacotes, numero_pacote, tam_pay_final)
+            if timer12_check == 1:
+                print("Enviando pacote número {0}".format(cont))
+                header_ = header(3, pacotes, cont, tam_payload, id_client, id_server)
+                payload = txClient[payload_index:payload_index + tam_payload]
+                com1.sendData(header_ + payload + eop())
+                print("Pacote {0} enviado! Aguardando resposta do server...".format(cont))
+
+                timer1_set = time.time()
+                timer2_set = time.time()
+
+            elif timer12_check == 3:
+                cont = transform_int(head_Server[6:7])
+                print("\n-------------------------")
+                print("Erro na ordem do arquivo ou tamanho do payload. Enviando novamente...")
+                print("-------------------------\n")
+                header_ = header(3, pacotes, cont, tam_payload, id_client, id_server)
+                payload = txClient[payload_index:payload_index + tam_payload]
+                com1.sendData(header_ + payload + eop())
+                print("Pacote {0} enviado! Aguardando resposta do server...".format(cont))
+
+                timer1_set = time.time()
+                timer2_set = time.time()
+
+
+            head_Server = com1.rx.getNData(tam_head)
+            payload_Server = com1.rx.getNData(0)
+            eop_Server = com1.rx.getNData(tam_eop) 
+
+            if transform_int(head_Server[0:1]) == 4:
+                print("Resposta recebida! Aguarde, preparando para enviar próximo pacote...")
+                payload_index += tam_payload
+                cont += 1
+                timer12_check = 1
+                continue
+            
+            if time.time() - timer1_set > 5:
+                time12_check = 2
+                print("Passaram 5 segundos, enviando novamente..")
+                header_ = header(3, pacotes, cont, tam_payload, id_client, id_server)
+                payload = txClient[payload_index:payload_index + tam_payload]
+                com1.sendData(header_ + payload + eop())
+                print("Pacote {0} enviado! Aguardando resposta do server...".format(cont))
+                timer1_set = time.time()
+            
+            #TimeOut
+            if time.time() - timer2_set > 20:
+                header_ = header(5, pacotes, cont, tam_payload, id_client, id_server)
+                payload = txClient[payload_index:payload_index + tam_payload]
+                com1.sendData(header_ + payload + eop())
+                print("Erro de TimeOut!")
+                print("\n-------------------------")
+                print("Comunicação com a porta {0} encerrada".format(serialName))
+                print("-------------------------\n")
+                com1.disable()
+            
+            #Pacote errado ou tamanho do payload
+            if transform_int(head_Server[0:1]) == 6:
+                timer12_check = 3
+                cont = transform_int(head_Server[6:7])
+
+     """
+            if cont == pacotes:
+                header_ = header(5, pacotes, numero_pacote, tam_pay_final, id_client, id_server)
                 payload = txClient[payload_index:payload_index + tam_payload]
                 com1.sendData(header_ + payload + eop())
                 print("Último pacote enviado! Aguardando resposta do server...")
@@ -223,7 +287,7 @@ def main():
                     pacote_novo_erro = transform_int(head_Server[5:6])
                     numero_pacote = pacote_novo_erro
                     print("Número do pacote: {0}".format(numero_pacote))
-
+"""
         print("\n---------------------------")
         print("Transferência realizada com sucesso!")
         print("---------------------------\n")
