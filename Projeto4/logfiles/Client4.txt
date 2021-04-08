@@ -7,17 +7,3 @@
 08/04/2021 || 17:50:10.123760 (Envio - Delay) /tipo=3 /tamanho=128 /pacote=1
 08/04/2021 || 17:50:15.005760 (Envio - ERRO TimeOut) /tipo=5 /tamanho=128 /pacote=1
 08/04/2021 || 17:50:15.008764 (Status) Porta desconectada
-
-
-08/04/2021 || 18:47:35.049612 (Recebe) /tipo=4 /tamanho=14 /pacote=1
-08/04/2021 || 18:47:40.176611 (Recebe) /tipo=4 /tamanho=14 /pacote=2
-08/04/2021 || 18:47:45.333612 (Recebe) /tipo=4 /tamanho=14 /pacote=3
-08/04/2021 || 18:49:29.816176 (Recebe) /tipo=4 /tamanho=14 /pacote=1
-08/04/2021 || 18:53:30.987065 (Recebe) /tipo=4 /tamanho=14 /pacote=1
-08/04/2021 || 18:58:13.439996 (Recebe) /tipo=4 /tamanho=14 /pacote=1
-08/04/2021 || 18:58:48.406456 (Recebe) /tipo=4 /tamanho=14 /pacote=1
-08/04/2021 || 19:01:26.668003 (Recebe) /tipo=4 /tamanho=14 /pacote=1
-08/04/2021 || 19:02:37.207601 (Recebe) /tipo=4 /tamanho=14 /pacote=1
-08/04/2021 || 19:07:03.128461 (Recebe) /tipo=4 /tamanho=14 /pacote=1
-08/04/2021 || 19:07:08.332601 (Recebe) /tipo=4 /tamanho=14 /pacote=2
-08/04/2021 || 19:07:13.490710 (Recebe) /tipo=4 /tamanho=14 /pacote=3
