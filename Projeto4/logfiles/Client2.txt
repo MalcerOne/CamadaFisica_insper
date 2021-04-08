@@ -1,0 +1,13 @@
+08/04/2021 || 15:12:16.205736 (Status) Conexao realizada com a porta
+08/04/2021 || 15:12:19.790753 (Envio) /tipo=1 /tamanho=14
+08/04/2021 || 15:12:21.178753 (Recebe) /tipo=2 /tamanho=14
+08/04/2021 || 15:12:21.362751 (Envio) /tipo=3 /tamanho=128 /pacote=0
+08/04/2021 || 15:12:21.706751 (Recebe - ERRO) /tipo=6 /tamanho=14 /pacote=1
+08/04/2021 || 15:12:21.954752 (Envio) /tipo=3 /tamanho=128 /pacote=1
+08/04/2021 || 15:12:22.551750 (Recebe) /tipo=4 /tamanho=14 /pacote=1
+08/04/2021 || 15:12:22.693752 (Envio) /tipo=3 /tamanho=128 /pacote=2
+08/04/2021 || 15:12:23.057749 (Recebe) /tipo=4 /tamanho=14 /pacote=2
+08/04/2021 || 15:12:23.119749 (Envio) /tipo=3 /tamanho=49 /pacote=3
+08/04/2021 || 15:12:23.544753 (Recebe) /tipo=4 /tamanho=14 /pacote=3
+08/04/2021 || 15:12:23.608750 (Status) Dados enviados com sucesso.
+08/04/2021 || 15:12:23.718750 (Status) Porta desconectada

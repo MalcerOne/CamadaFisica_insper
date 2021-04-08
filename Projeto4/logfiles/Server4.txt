@@ -1,0 +1,14 @@
+08/04/2021 || 18:31:38.202299 (Status) Conexao realizada com a porta, aguardando transmissao.
+08/04/2021 || 18:31:44.035816 (Recebe) /tipo=1 /tamanho=14
+08/04/2021 || 18:31:44.195816 (Envio) /tipo=2 /tamanho=14
+08/04/2021 || 18:31:44.717817 (Recebe) /tipo=3 /tamanho=128 /pacote=1
+08/04/2021 || 18:31:46.820816 (Recebe) /tipo=3 /tamanho=128 /pacote=1
+08/04/2021 || 18:31:48.975817 (Recebe) /tipo=3 /tamanho=128 /pacote=1
+08/04/2021 || 18:31:51.272816 (Recebe) /tipo=3 /tamanho=128 /pacote=1
+08/04/2021 || 18:31:53.467816 (Recebe) /tipo=3 /tamanho=128 /pacote=1
+08/04/2021 || 18:31:55.535068 (Recebe) /tipo=3 /tamanho=128 /pacote=1
+08/04/2021 || 18:31:57.706816 (Recebe) /tipo=3 /tamanho=128 /pacote=1
+08/04/2021 || 18:31:59.949816 (Recebe) /tipo=3 /tamanho=128 /pacote=1
+08/04/2021 || 18:32:02.218828 (Recebe) /tipo=3 /tamanho=128 /pacote=1
+08/04/2021 || 18:32:04.400818 (Envio - ERRO TimeOut) /tipo=5 /tamanho=14
+08/04/2021 || 18:32:04.663417 (Status) Porta desconectada

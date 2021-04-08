@@ -1,0 +1,7 @@
+08/04/2021 || 16:58:25.697351 (Status) Conexao realizada com a porta, aguardando transmissao.
+08/04/2021 || 16:58:36.691902 (Recebe) /tipo=1 /tamanho=14
+08/04/2021 || 16:58:41.251902 (Recebe) /tipo=1 /tamanho=14
+08/04/2021 || 16:58:47.091901 (Recebe) /tipo=1 /tamanho=14
+08/04/2021 || 16:58:54.448417 (Recebe) /tipo=1 /tamanho=14
+08/04/2021 || 16:59:01.063417 (Recebe - Timeout header) /tipo=5 /tamanho=14
+08/04/2021 || 16:59:01.143417 (Status) Porta desconectada

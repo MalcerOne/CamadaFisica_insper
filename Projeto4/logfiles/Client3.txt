@@ -1,0 +1,8 @@
+08/04/2021 || 16:10:18.092829 (Status) Conexao realizada com a porta
+08/04/2021 || 16:10:20.848479 (Envio) /tipo=1 /tamanho=14
+08/04/2021 || 16:10:29.050189 (Envio - Delayed) /tipo=1 /tamanho=14
+08/04/2021 || 16:10:48.347239 (Envio - Delayed) /tipo=1 /tamanho=14
+08/04/2021 || 16:10:55.299603 (Envio - Delayed) /tipo=1 /tamanho=14
+08/04/2021 || 16:11:02.840166 (Envio - Delayed) /tipo=1 /tamanho=14
+08/04/2021 || 16:11:10.185388 (Envio - Delayed) /tipo=1 /tamanho=14
+08/04/2021 || 16:11:16.429228 (Status) Porta desconectada

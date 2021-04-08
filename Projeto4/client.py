@@ -17,7 +17,7 @@ from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 import os
 from utils import *
-import keyboard
+from datetime import datetime
 
 
 #Nome da porta serial a ser conectada
@@ -124,6 +124,7 @@ def main():
         com1 = enlace(serialName)
         # Ativa comunicacao. Inicia os threads e a comunicação serial 
         com1.enable()
+        
         print("\n-------------------")
         print("Porta {0} conectada!".format(serialName))
         print("-------------------\n")
@@ -151,6 +152,7 @@ def main():
             handshake_client = handshake(pacotes, id_server, id_client, id_arquivo)
             print("Enviando o handshake para iniciar a comunicação...")
             com1.sendData(handshake_client + end_of_package)
+            
             #Checar o Header do Handshake
             check_server_up = com1.rx.getNData_handshake(tam_head)
             #Se o getNData_handshake retornar 'Cinco segundo se passaram', significa que não recebemos a confirmação do server em cinco segundos
@@ -158,6 +160,8 @@ def main():
                 retry = input("Servidor inativo. Tentar novamente? [S/N]: ")
                 if retry == "N" or retry == "n":
                     print("Encerrando a comunicação")
+                    header_ = header(5, pacotes, 1, tam_payload, id_client, id_server)
+                    com1.sendData(header_ + eop())
                     com1.disable()
                     exit()
                 elif retry == "S" or retry == "s":
@@ -185,23 +189,21 @@ def main():
         header_ = b''
         timer12_check = 1
         count = 1
-
-        """with open("copy.txt", "w") as file:
-            file.write("Your text goes here")"""
+        a = 0
 
         while cont <= pacotes:
             
             if cont == pacotes and count == 1:
                 timer12_check = 4
                 print("Enviando último pacote!")
+
                 header_ = header_lastpayload(3, pacotes, cont, tam_pay_final, id_client, id_server, 1)
-                payload = txClient[payload_index:payload_index + tam_payload]
+                payload = txClient[payload_index:payload_index + tam_pay_final]
                 com1.sendData(header_ + payload + eop())
                 print("Pacote {0} enviado! Aguardando resposta do server...".format(cont))
 
                 timer1_set = time.time()
                 timer2_set = time.time()
-
 
             if timer12_check == 1:
                 print("Enviando pacote número {0}".format(cont))
@@ -214,28 +216,29 @@ def main():
                 timer2_set = time.time()
 
             elif timer12_check == 3:
-                cont = transform_int(head_Server[6:7])
+                payload_index = 0
                 print("\n-------------------------")
                 print("Erro na ordem do arquivo ou tamanho do payload. Enviando novamente...")
                 print("-------------------------\n")
                 header_ = header(3, pacotes, cont, tam_payload, id_client, id_server)
                 payload = txClient[payload_index:payload_index + tam_payload]
-                com1.sendData(header_ + payload + eop())
+                com1.sendData(header_ + payload + eop())                
+
                 print("Pacote {0} enviado! Aguardando resposta do server...".format(cont))
+                
 
                 timer1_set = time.time()
                 timer2_set = time.time()
 
-
             head_Server = com1.rx.getNData(tam_head)
             payload_Server = com1.rx.getNData(0)
             eop_Server = com1.rx.getNData(tam_eop) 
-
+            
             if transform_int(head_Server[0:1]) == 4:
                 print("Resposta recebida! Aguarde, preparando para enviar próximo pacote...")
-                payload_index += tam_payload
                 cont += 1
                 timer12_check = 1
+                payload_index += tam_payload
                 continue
             
             if time.time() - timer1_set > 5:
@@ -243,11 +246,12 @@ def main():
                     print("Passaram 5 segundos, enviando novamente..")
                     header_ = header_lastpayload(7, pacotes, cont, tam_pay_final, id_client, id_server, 1)
                     payload = txClient[payload_index:payload_index + tam_payload]
-                    com1.sendData(header_lastpayload + payload + eop())
+                    com1.sendData(header_ + payload + eop())
+
                     print("Pacote {0} enviado! Aguardando resposta do server...".format(cont))
                     timer1_set = time.time()
                 else:
-                    time12_check = 2
+                    timer12_check = 2
                     print("Passaram 5 segundos, enviando novamente..")
                     header_ = header(3, pacotes, cont, tam_payload, id_client, id_server)
                     payload = txClient[payload_index:payload_index + tam_payload]
@@ -265,69 +269,16 @@ def main():
                 print("Comunicação com a porta {0} encerrada".format(serialName))
                 print("-------------------------\n")
                 com1.disable()
+                exit()
             
             #Pacote errado ou tamanho do payload
             if transform_int(head_Server[0:1]) == 6:
                 timer12_check = 3
                 cont = transform_int(head_Server[6:7])
+                continue
             
             count = 2
 
-        """
-            if cont == pacotes:
-                header_ = header(5, pacotes, numero_pacote, tam_pay_final, id_client, id_server)
-                payload = txClient[payload_index:payload_index + tam_payload]
-                com1.sendData(header_ + payload + eop())
-                print("Último pacote enviado! Aguardando resposta do server...")
-
-                head_Server = com1.rx.getNData(tam_head)
-                payload_Server = com1.rx.getNData(0)
-                eop_Server = com1.rx.getNData(tam_eop)
-
-                if check_for_error(eop_Server, head_Server):
-                    print("Debug: Head -> {0} // EOP -> {1}".format(head_Server, eop_Server))
-
-                elif transform_int(head_Server[4:5]) == 1:
-                    print("Dados enviados com sucesso! Todos os pacotes foram enviados!")
-                    allpackages_sent = True
-
-                elif transform_int(head_Server[4:5]) == 0:
-                    #Se é igual a 0, significa que houve um erro
-                    print("Erro no envio do pacote. Enviando mais uma vez")
-                    pacote_novo_erro = transform_int(head_Server[5:6])
-                    print("Número do pacote: {0}".format(pacote_novo_erro))
-                    continue
-            
-            else:
-                header_ = header(3, pacotes, numero_pacote, tam_payload)
-                payload = txClient[payload_index:payload_index + tam_payload]
-                com1.sendData(header_ + payload + eop())
-                print("Pacote enviado! Aguardando resposta do server...")
-
-                #Após a primeira iteração, o head_Server é identificado pelo getNData em sua variavel
-                head_Server = com1.rx.getNData(tam_head)
-                payload_Server = com1.rx.getNData(0)
-                eop_Server = com1.rx.getNData(tam_eop)
-
-                #Checa algum erro no tamanho do header e do eop da resposta do server
-                if check_for_error(eop_Server, head_Server):
-                    print("Debug: Head -> {0} // EOP -> {1}".format(head_Server, eop_Server))
-                
-                elif transform_int(head_Server[4:5]) == 1:
-                    #Sem erros, pacote enviado
-                    print("Resposta recebida, pacote enviado! Preparando para enviar o próximo...\n\n")
-                    payload_index += tam_payload
-                    numero_pacote += 1
-                    continue
-
-                #Checa se há algum erro com o envio do pacote
-                elif transform_int(head_Server[4:5]) == 0:
-                    #Se é igual a 0, significa que houve um erro
-                    print("Erro no envio do pacote. Enviando mais uma vez")
-                    pacote_novo_erro = transform_int(head_Server[5:6])
-                    numero_pacote = pacote_novo_erro
-                    print("Número do pacote: {0}".format(numero_pacote))
-                    """
         print("\n---------------------------")
         print("Transferência realizada com sucesso!")
         print("---------------------------\n")
