@@ -7,7 +7,7 @@
 __author__ = "Rafael Seicali Malcervelli"
 
 
-#C:\Documentos Insper\4º_semestre\CamFis\projeto1\CamadaFisica_insper\Projeto1_2_3
+#C:\Documentos Insper\4º_semestre\CamFis\projeto1\CamadaFisica_insper\Projeto4
 
 from enlace import *
 import time
@@ -18,7 +18,7 @@ from tkinter.filedialog import askopenfilename
 import os
 from utils import *
 import keyboard
-from identificators import id_client, id_server, id_arquivo
+
 
 #Nome da porta serial a ser conectada
 serialName = "COM5"          
@@ -27,6 +27,11 @@ serialName = "COM5"
 tam_head = 10 
 tam_payload = 114 # Tamaho maximo
 tam_eop = 4
+
+#Definição dos ids
+id_client = 93
+id_server = 22
+id_arquivo = 55
 
 #------------------------------------------------------------------
 #Definição de algumas funções utilizadas no código
@@ -60,7 +65,10 @@ def header(tipo, numero_pacotes, numero_pack_atual, tamanho_payload, idclient, i
     4 -> Número do pacote atual
     5 -> Se for handshake: Id do arquivo // Se for dados: Tamanho do payload
     6 -> Pacote solicitado para recomeço quando a erro no envio
-    7 -> Último pacote recebido com sucesso
+    7 -> Último pacote recebido com sucesso {
+        1 = Client avisa que é o ultimo -> Contém payload_final
+        2 = Resposta do server recebendo o ultimo
+    }
     8 -> 0 
     9 -> 0
     """
@@ -74,6 +82,18 @@ def header(tipo, numero_pacotes, numero_pack_atual, tamanho_payload, idclient, i
     id_Client = transform_byte(idclient)
 
     return tip + id_Client + id_Server + n_pacotes + npack_atual + t_pay + zero*4
+
+def header_lastpayload(tipo, numero_pacotes, numero_pack_atual, tamanho_payload_final, idclient, idserver, confirmacao):
+    zero = transform_byte(0)
+    tip = transform_byte(tipo)
+    npack_atual = transform_byte(numero_pack_atual)
+    n_pacotes = transform_byte(numero_pacotes)
+    t_pay = transform_byte(tamanho_payload_final)
+    id_Server = transform_byte(idserver)
+    id_Client = transform_byte(idclient)
+    confirmation = transform_byte(confirmacao)
+
+    return tip + id_Client + id_Server + n_pacotes + npack_atual + t_pay + zero + confirmation + zero*2
     
 def handshake(pacotes, idserver, idclient, idarquivo):
     zero = transform_byte(0)
@@ -159,20 +179,30 @@ def main():
                     inicia = True
 
         #Preparação para o envio dos pacotes, após a confirmação do handshake
-        allpackages_sent = False
         cont = 1
-        last_pack = 0
         payload_index = 0
         head_Server = [0, 0, 0, 0, 0, 0, 0, 0]
-        sem_erros = 0
         header_ = b''
         timer12_check = 1
-"""
-        with open("copy.txt", "w") as file:
+        count = 1
+
+        """with open("copy.txt", "w") as file:
             file.write("Your text goes here")"""
 
         while cont <= pacotes:
             
+            if cont == pacotes and count == 1:
+                timer12_check = 4
+                print("Enviando último pacote!")
+                header_ = header_lastpayload(3, pacotes, cont, tam_pay_final, id_client, id_server, 1)
+                payload = txClient[payload_index:payload_index + tam_payload]
+                com1.sendData(header_ + payload + eop())
+                print("Pacote {0} enviado! Aguardando resposta do server...".format(cont))
+
+                timer1_set = time.time()
+                timer2_set = time.time()
+
+
             if timer12_check == 1:
                 print("Enviando pacote número {0}".format(cont))
                 header_ = header(3, pacotes, cont, tam_payload, id_client, id_server)
@@ -209,13 +239,21 @@ def main():
                 continue
             
             if time.time() - timer1_set > 5:
-                time12_check = 2
-                print("Passaram 5 segundos, enviando novamente..")
-                header_ = header(3, pacotes, cont, tam_payload, id_client, id_server)
-                payload = txClient[payload_index:payload_index + tam_payload]
-                com1.sendData(header_ + payload + eop())
-                print("Pacote {0} enviado! Aguardando resposta do server...".format(cont))
-                timer1_set = time.time()
+                if timer12_check == 4:
+                    print("Passaram 5 segundos, enviando novamente..")
+                    header_ = header_lastpayload(7, pacotes, cont, tam_pay_final, id_client, id_server, 1)
+                    payload = txClient[payload_index:payload_index + tam_payload]
+                    com1.sendData(header_lastpayload + payload + eop())
+                    print("Pacote {0} enviado! Aguardando resposta do server...".format(cont))
+                    timer1_set = time.time()
+                else:
+                    time12_check = 2
+                    print("Passaram 5 segundos, enviando novamente..")
+                    header_ = header(3, pacotes, cont, tam_payload, id_client, id_server)
+                    payload = txClient[payload_index:payload_index + tam_payload]
+                    com1.sendData(header_ + payload + eop())
+                    print("Pacote {0} enviado! Aguardando resposta do server...".format(cont))
+                    timer1_set = time.time()
             
             #TimeOut
             if time.time() - timer2_set > 20:
@@ -232,8 +270,10 @@ def main():
             if transform_int(head_Server[0:1]) == 6:
                 timer12_check = 3
                 cont = transform_int(head_Server[6:7])
+            
+            count = 2
 
-     """
+        """
             if cont == pacotes:
                 header_ = header(5, pacotes, numero_pacote, tam_pay_final, id_client, id_server)
                 payload = txClient[payload_index:payload_index + tam_payload]
@@ -287,7 +327,7 @@ def main():
                     pacote_novo_erro = transform_int(head_Server[5:6])
                     numero_pacote = pacote_novo_erro
                     print("Número do pacote: {0}".format(numero_pacote))
-"""
+                    """
         print("\n---------------------------")
         print("Transferência realizada com sucesso!")
         print("---------------------------\n")
