@@ -12,8 +12,6 @@ void loop() {
  delay(5);
 }
 
-
-
 void receive_byte() {
   char data;
   int code = sw_uart_receive_byte(&uart, &data);

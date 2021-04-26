@@ -11,9 +11,6 @@ class signalMeu:
     def __init__(self):
         self.init = 0
 
-    def __init__(self):
-        self.init = 0
-
     def generateSin(self, freq, amplitude, time, fs):
         n = time*fs
         x = np.linspace(0.0, time, n)
