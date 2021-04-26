@@ -6,20 +6,22 @@ import numpy as np
 import sounddevice as sd
 import matplotlib.pyplot as plt
 import time
-
+import sys
+from pyfiglet import Figlet
 
 #funcao para transformas intensidade acustica em dB
 def todB(s):
     sdB = 10*np.log10(s)
     return(sdB)
 
-
 def main():
-
+    f1 = Figlet(font='slant')
+    print(f1.renderText('Projeto 7 - receptor'))
     #*****************************instruções********************************
  
     #declare um objeto da classe da sua biblioteca de apoio (cedida)   
     # algo como:
+    print("\n[+]---Inicializando decoder\n\n")
     signal = signalMeu() 
        
     #voce importou a bilioteca sounddevice como, por exemplo, sd. entao
@@ -32,28 +34,35 @@ def main():
     numAmostras = sd.default.samplerate * duration
     #faca um print na tela dizendo que a captacao comecará em n segundos. e entao 
     #use um time.sleep para a espera
-    print("-------------------")
-    print("A captação do som começará em 5 segundos...")
-    print("-------------------\n\n")
+    print("\n[+]---A captação do som começará em 5 segundos...")
     time.sleep(5)
    
     #Ao seguir, faca um print informando que a gravacao foi inicializada
-    print("Gravação inicializada!")
+    print("\n[+]---Gravação inicializada!")
     #para gravar, utilize
     audio = sd.rec(int(numAmostras), sd.default.samplerate, channels=1)
     sd.wait()
-    print("...     FIM")
-
+    print("\n[+]---FIM")
 
     #analise sua variavel "audio". pode ser um vetor com 1 ou 2 colunas, lista, isso dependerá so seu sistema, drivers etc...
-    print(f"Variável: {audio}")
-    print(f"Tipo da variável: {audio[0]}")
     #extraia a parte que interessa da gravação (as amostras) gravando em uma variável "dados". Isso porque a variável audio pode conter dois canais e outas informações). 
-    
+    dadoslista = []
+    for amostras in audio:
+        dadoslista.append(amostras[0])
+
+    dadosArray = np.array(dadoslista)
     # # use a funcao linspace e crie o vetor tempo. Um instante correspondente a cada amostra!
-    # t = np.linspace(inicio,fim,numPontos)
+    tempo = np.linspace(-1 ,1,1*44100*2)
     # # plot do gravico áudio gravado (dados) vs tempo! Não plote todos os pontos, pois verá apenas uma mancha (freq altas) . 
-       
+    plt.plot(tempo, dadosArray, "r-", label=f"Áudio captado")
+    plt.grid(True)
+    plt.title(f"Áudio gravado x Tempo")
+    plt.xlabel("Tempo [s]")
+    plt.ylabel("Amplitude do som")
+    plt.xlim(0, 0.001)
+    plt.ylim(-0.05, 0.05)
+    plt.legend()
+    plt.show()  
     # ## Calcula e exibe o Fourier do sinal audio. como saida tem-se a amplitude e as frequencias
     # xf, yf = signal.calcFFT(y, fs)
     # plt.figure("F(y)")
