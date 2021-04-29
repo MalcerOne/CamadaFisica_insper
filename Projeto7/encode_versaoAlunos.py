@@ -1,5 +1,5 @@
 
-#importe as bibliotecas
+#Importanto as bibliotecas necessárias
 from suaBibSignal import *
 import numpy as np
 import sounddevice as sd
@@ -7,12 +7,11 @@ import matplotlib.pyplot as plt
 import sys
 from pyfiglet import Figlet
 
-#funções a serem utilizadas
+#Funções a serem utilizadas
 def signal_handler(signal, frame):
         print('[!]---You pressed Ctrl+C!')
         sys.exit(0)
 
-#converte intensidade em Db, caso queiram ...
 def todB(s):
     sdB = 10*np.log10(s)
     return(sdB)
@@ -96,12 +95,12 @@ def main():
 
     #soma das senoides
     finalSin = y1 + y2
-    print(finalSin, type(finalSin))
     print("[+]---Gerando Tom referente ao símbolo : {}".format(tecla))
     #Playing
     sd.play(finalSin, fs)
 
     # # Exibe gráficos
+    plt.figure("Senoides")
     plt.plot(tempo, y1, "b-.", label=f"Frequência: {frequenciasTecla[0][0]} Hz", )
     plt.plot(tempo, y2, "r--", label=f"Frequência: {frequenciasTecla[1][0]} Hz")
     plt.plot(tempo, finalSin, "g-", label=f"Frequência Soma")

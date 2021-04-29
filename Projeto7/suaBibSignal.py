@@ -15,7 +15,7 @@ class signalMeu:
         n = time*fs
         x = np.linspace(0.0, time, n)
         s = amplitude*np.sin(freq*x*2*np.pi)
-        return (x, s)
+        return x, s
 
     def calcFFT(self, signal, fs):
         # https://docs.scipy.org/doc/scipy/reference/tutorial/fftpack.html
