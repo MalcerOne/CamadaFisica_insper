@@ -49,7 +49,7 @@ def main():
     print("\n[+]---Gravação inicializada!")
 
     audio = sd.rec(int(numAmostras))
-    
+    sd.wait()
     print("\n[+]---Fim da gravação.")
 
     tempo = np.linspace(0,2,44100)
@@ -62,10 +62,10 @@ def main():
     plt.title(f"Áudio gravado x Tempo")
     plt.autoscale(enable=True, axis="both", tight=True)
     plt.show()
-    sd.wait()
     
+
     # ## Calcula e exibe o Fourier do sinal audio. como saida tem-se a amplitude e as frequencias
-    print("\n[+]---Realizando transformada de Fourier.")
+    print("\n[+]---Realizando a transformada de Fourier.")
     xf, yf = signal.calcFFT(audio, 44100)
     print("\n[+]---Plotando gráfico da transformada de Fourier.")
     plt.figure("Fourier")
