@@ -2,7 +2,7 @@
 import numpy as np
 import sounddevice as sd
 import matplotlib.pyplot as plt
-from scipy.fftpack import fft
+from scipy.fftpack import fft, next_fast_len
 from scipy import signal as window
 
 
