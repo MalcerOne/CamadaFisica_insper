@@ -39,7 +39,13 @@ def main():
     sd.wait()
     
     ## Filtrar as altas frequências
+    print(f"\n[+]---Filtrando altas frequências do audio\n")
+    audioFiltered = LPF(audioNormalizado, 4000, samplerate)
+
     ## Reproduzir o sinal (opaco)
+    print(f"\n[+]---Tocando o audio com altas frequências filtradas\n")
+    sd.play(audioFiltered, samplerate)
+    sd.wait()
     ## Modular o sinal em AM com Carrierde 20 MHz
     ## Reproduzir o sinal (não é perfeitamente audível)
     ## Gráfico Fourier x Tempo do áudio original

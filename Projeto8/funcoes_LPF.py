@@ -21,7 +21,7 @@ def LPF(signal, cutoff_hz, fs):
         # https://scipy.github.io/old-wiki/pages/Cookbook/FIRFilter.html
         nyq_rate = fs/2
         width = 5.0/nyq_rate
-        ripple_db = 60.0 #dB
+        ripple_db = 60#dB
         N , beta = sg.kaiserord(ripple_db, width)
         taps = sg.firwin(N, cutoff_hz/nyq_rate, window=('kaiser', beta))
         return( sg.lfilter(taps, 1.0, signal))
@@ -51,7 +51,3 @@ def normalizeAudio(wavfile):
                 maxAbs = minimum
         
         return wavfile*(1/maxAbs)
-
-def play(audio):
-        sd.play(audio, 44100)
-        sd.wait()
