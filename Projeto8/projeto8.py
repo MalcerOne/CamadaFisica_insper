@@ -23,17 +23,20 @@ def main():
         # https://stackoverflow.com/questions/30619740/downsampling-wav-audio-file
         number_of_samples = round(len(audio) * float(44100) / samplerate)
         audio = sps.resample(audio, number_of_samples)
-        audioTime = number_of_samples/44100
-        samplerate = int(number_of_samples/audioTime)
+        duration = number_of_samples/44100
+        samplerate = int(number_of_samples/duration)
+    else:
+        duration = len(audio)/samplerate
+        number_of_samples = samplerate*duration
 
     ## Normalizar o sinal
-    audioNormalizado = audio * 1/abs(audio.max())
+    audioNormalizado = normalizeAudio(audio)
     print(f"\n[+]---Faixa do áudio normalizado: '[{audioNormalizado.min(), audioNormalizado.max()}]'\n")
 
     ## Reproduzir o sinal normalizado
-    duration = len(audioNormalizado)/samplerate
-
-    #
+    print(f"\n[+]---Tocando o audio normalizado\n")
+    sd.play(audioNormalizado, samplerate)
+    sd.wait()
     
     ## Filtrar as altas frequências
     ## Reproduzir o sinal (opaco)

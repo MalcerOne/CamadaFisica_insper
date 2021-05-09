@@ -40,3 +40,18 @@ def generateSin(self, freq, amplitude, time, fs):
         x = np.linspace(0.0, time, n)
         s = amplitude*np.sin(freq*x*2*np.pi)
         return x, s
+
+def normalizeAudio(wavfile):
+        minimum = abs(wavfile.min())
+        maximum = abs(wavfile.max())
+
+        if maximum > minimum:
+                maxAbs = maximum
+        else:
+                maxAbs = minimum
+        
+        return wavfile*(1/maxAbs)
+
+def play(audio):
+        sd.play(audio, 44100)
+        sd.wait()
