@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 ## Importando bibliotecas
 from funcoes_LPF import *
 from tkinter.filedialog import askopenfilename
@@ -61,6 +64,9 @@ def main():
     sd.play(audioModAM)
     sd.wait()
 
+    wavfile.write("rafaModularizado.wav", 44100, audioModAM)
+
+
     #=============================GRÁFICOS=================================
 
     ## Gráfico Fourier x Tempo do áudio original
@@ -111,27 +117,46 @@ def main():
     plt.savefig("FourierAudioModulado.jpg")
     plt.show()
 
-    # Demodulação
+    ##=========================================== Demodulação================================
+    print("\n[+]---Selecione um arquivo de áudio\n")
     file = askopenfilename(initialdir=os.getcwd(), title='Selecione o arquivo .wav', filetypes=[('Sound Files', '.wav')])
     
     print(f"\n[+]---Arquivo '{os.path.basename(file)}' selecionado\n")
     samplerateDemod, audioMODfriend = wavfile.read(file)
 
-    audioDemod = carrier*audioMODfriend
-    durationDemod = len(audioDemod)/samplerateDemod
-    number_of_samplesDemod = samplerateDemod*durationDemod
-    tempoDemod = np.linspace(0, durationDemod, number_of_samplesDemod)
+    ## Verificando se esta na banda de 16kHz e 24kHz
+    xf5, yf5 = calcFFT(audioMODfriend, 44100)
+    plt.plot(xf5, np.abs(yf5), label="Áudio do amigo", color="black")
+    plt.title("Fourier do áudio do amigo")
+    plt.savefig("FourierAudiodoAmigo.jpg")
+    plt.show()
 
-    plt.plot(tempoDemod, audioDemod, label="Áudio Demodulado")
-    plt.title("Áudio demodulado x Tempo")
+    ## Demodulando
+    print(f"\n[+]---Demodulando o áudio\n")
+    audioDemod = carrier*audioMODfriend
+
+    ## Filtrando freqûencias superiores a 4kHz
+    print(f"\n[+]---Filtrando frequências superiores a 4kHz\n")
+    audioDemodFiltered = low_pass_filter(44100, 4000, audioDemod)
+
+    ## Executando o áudio e vendo que é audível
+    print(f"\n[+]---Tocando áudio demodularizado e filtrado\n")
+    sd.play(audioDemodFiltered)
+    sd.wait()
+
+    ## Gráficos no tempo e Fourier do audio filtrado
+    #Gráfico do tempo
+    plt.plot(t, audioDemodFiltered, label="Áudio Demodulado e filtrado")
+    plt.title("Áudio demodulado e filtrado x Tempo")
     plt.savefig("AudioDemoduladoxTempo.jpg")
     plt.show()
 
-    xf5, yf5 = calcFFT(audioDemod, 44100)
-    plt.plot(xf5, np.abs(yf5), label="Áudio Demodulado", color="black")
-    plt.title("Fourier do áudio demodulado")
-    plt.savefig("FourierAudioDemodulado.jpg")
+    #Gráfico Fourier
+    xf6, yf6 = calcFFT(audioDemodFiltered, 44100)
+    plt.plot(xf6, np.abs(yf6), label="Áudio do amigo demodulado e filtrado", color="black")
+    plt.title("Fourier do áudio do amigo demodulado e filtrado")
+    plt.savefig("FourierAudiodoAmigoDemoduladoeFiltrado.jpg")
     plt.show()
-
+    
 if __name__ == "__main__":
     main()
