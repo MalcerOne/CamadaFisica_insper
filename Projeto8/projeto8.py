@@ -29,9 +29,11 @@ def main():
     else:
         duration = len(audio)/samplerate
         number_of_samples = samplerate*duration
+    sd.default.channels = 1
+    yAudio = audio[:,1]
 
     ## Normalizar o sinal
-    audioNormalizado = normalizeAudio(audio)
+    audioNormalizado = normalizeAudio(yAudio)
     print(f"\n[+]---Faixa do áudio normalizado: '[{audioNormalizado.min(), audioNormalizado.max()}]'\n")
 
     ## Reproduzir o sinal normalizado
@@ -52,68 +54,84 @@ def main():
     print(f"\n[+]---Modulando o sinal por AM de 20 MHz\n")
     t = np.linspace(0, duration, number_of_samples)
     carrier = 1*np.cos(2*np.pi*20000*t)
-    audioModAM = np.dot(carrier, audioFiltered)
+    audioModAM = 1*carrier*audioFiltered
 
     ## Reproduzir o sinal (não é perfeitamente audível)
     print(f"\n[+]---Tocando o audio modulado (não é audível)\n")
-    print(audioModAM)
     sd.play(audioModAM)
     sd.wait()
 
-    ## Gráfico Fourier x Tempo do áudio original
-    arrayAudioOriginal = np.ndarray(shape=(88200,),dtype=np.float32)
-    for i in range(0,arrayAudioOriginal.shape[0]):
-        arrayAudioOriginal[i] = audio[i][0]
+    #=============================GRÁFICOS=================================
 
-    tempo = np.linspace(0, duration, 44100)
-    xf, yf = calcFFT(arrayAudioOriginal, 44100)
-    plt.plot(xf, yf, label="Áudio Original")
+    ## Gráfico Fourier x Tempo do áudio original
+    plt.plot(t, yAudio, label="Áudio Original")
+    plt.title("Áudio original x Tempo")
+    plt.savefig("AudioOriginalxTempo.jpg")
+    plt.show()
+
+    xf1, yf1 = calcFFT(yAudio, 44100)
+    plt.plot(xf1, np.abs(yf1), label="Áudio Original", color="blue")
     plt.title("Fourier do áudio original")
-    plt.xlabel("Frequências")
-    plt.legend()
     plt.savefig("FourierAudioOriginal.jpg")
     plt.show()
 
     ## Gráfico Fourier x Tempo do áudio normalizado
-    arrayAudioNormalizado = np.ndarray(shape=(88200,),dtype=np.float32)
-    for i in range(0,arrayAudioNormalizado.shape[0]):
-        arrayAudioNormalizado[i] = audioNormalizado[i][0]
+    plt.plot(t, audioNormalizado, label="Áudio Normalizado")
+    plt.title("Áudio normalizado x Tempo")
+    plt.savefig("AudioNormalizadoxTempo.jpg")
+    plt.show()
 
-    tempo = np.linspace(0, duration, 44100)
-    xf, yf = calcFFT(arrayAudioNormalizado, 44100)
-    plt.plot(xf, yf, label="Áudio Normalizado")
+    xf2, yf2 = calcFFT(audioNormalizado, 44100)
+    plt.plot(xf2, np.abs(yf2), label="Áudio Normalizado", color="green")
     plt.title("Fourier do áudio normalizado")
-    plt.xlabel("Frequências")
-    plt.legend()
     plt.savefig("FourierAudioNormalizado.jpg")
     plt.show()
 
     ## Gráfico Fourier x Tempo do áudio filtrado
-    arrayAudioFiltered = np.ndarray(shape=(88200,),dtype=np.float32)
-    for i in range(0,arrayAudioFiltered.shape[0]):
-        arrayAudioFiltered[i] = audioFiltered[i][0]
+    plt.plot(t, audioFiltered, label="Áudio Filtrado")
+    plt.title("Áudio filtrado x Tempo")
+    plt.savefig("AudioFiltradoxTempo.jpg")
+    plt.show()
 
-    tempo = np.linspace(0, duration, 44100)
-    xf, yf = calcFFT(arrayAudioFiltered, 44100)
-    plt.plot(xf, yf, label="Áudio Filtrado")
+    xf3, yf3 = calcFFT(audioFiltered, 44100)
+    plt.plot(xf3, np.abs(yf3), label="Áudio Filtrado", color="red")
     plt.title("Fourier do áudio filtrado")
-    plt.xlabel("Frequências")
-    plt.legend()
     plt.savefig("FourierAudioFiltrado.jpg")
     plt.show()
 
     ## Gráfico Fourier x Tempo do áudio modulado
-    arrayAudioModAM = np.ndarray(shape=(88200,),dtype=np.float32)
-    for i in range(0,arrayAudioModAM.shape[0]):
-        arrayAudioModAM[i] = audioModAM[i][0]
+    plt.plot(t, audioModAM, label="Áudio Modulado")
+    plt.title("Áudio modulado x Tempo")
+    plt.savefig("AudioModuladoxTempo.jpg")
+    plt.show()
 
-    tempo = np.linspace(0, duration, 44100)
-    xf, yf = calcFFT(arrayAudioModAM, 44100)
-    plt.plot(xf, yf, label="Áudio Modulado")
+    xf4, yf4 = calcFFT(audioModAM, 44100)
+    plt.plot(xf4, np.abs(yf4), label="Áudio Modulado", color="brown")
     plt.title("Fourier do áudio modulado")
-    plt.xlabel("Frequências")
-    plt.legend()
     plt.savefig("FourierAudioModulado.jpg")
     plt.show()
+
+    # Demodulação
+    file = askopenfilename(initialdir=os.getcwd(), title='Selecione o arquivo .wav', filetypes=[('Sound Files', '.wav')])
+    
+    print(f"\n[+]---Arquivo '{os.path.basename(file)}' selecionado\n")
+    samplerateDemod, audioMODfriend = wavfile.read(file)
+
+    audioDemod = carrier*audioMODfriend
+    durationDemod = len(audioDemod)/samplerateDemod
+    number_of_samplesDemod = samplerateDemod*durationDemod
+    tempoDemod = np.linspace(0, durationDemod, number_of_samplesDemod)
+
+    plt.plot(tempoDemod, audioDemod, label="Áudio Demodulado")
+    plt.title("Áudio demodulado x Tempo")
+    plt.savefig("AudioDemoduladoxTempo.jpg")
+    plt.show()
+
+    xf5, yf5 = calcFFT(audioDemod, 44100)
+    plt.plot(xf5, np.abs(yf5), label="Áudio Demodulado", color="black")
+    plt.title("Fourier do áudio demodulado")
+    plt.savefig("FourierAudioDemodulado.jpg")
+    plt.show()
+
 if __name__ == "__main__":
     main()
